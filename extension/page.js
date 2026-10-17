@@ -17,10 +17,11 @@ window.addEventListener('message', async (event) => {
 async function voiceAudio(id) {
   if (!WPP.isReady) throw new Error('WhatsApp Web non è ancora pronto, riprova tra qualche secondo');
   // DOM rows carry only the bare message id: the full key (chat + sender) lives
-  // on the message model of the open chat.
+  // on the message model of the open chat. Serialize it with toString():
+  // WhatsApp no longer sets MsgKey._serialized.
   const msg = WPP.chat.getActiveChat()?.msgs.getModelsArray().find((m) => m.id.id === id);
   if (!msg) throw new Error('messaggio non trovato: forse va aggiornato wppconnect-wa.js');
-  return blobToBase64(await WPP.chat.downloadMedia(msg.id._serialized));
+  return blobToBase64(await WPP.chat.downloadMedia(msg.id.toString()));
 }
 
 function blobToBase64(blob) {
