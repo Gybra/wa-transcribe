@@ -27,8 +27,11 @@ Unofficial project, not affiliated with WhatsApp or Meta.
 ```
 
 The script installs `mlx-whisper` in `~/.venvs/whisper` (override with
-`WHISPER_VENV`) if it is missing, downloads the model, and registers the
-native messaging host for Brave and Chrome.
+`WHISPER_VENV`) if it is missing, downloads the model, copies the native
+messaging host to `~/Library/Application Support/wa-transcribe` and registers
+it for Brave and Chrome. The copy is needed because the host inherits the
+browser's macOS privacy permissions, which usually exclude Documents, Desktop
+and Downloads. Run the script again after editing `host/wa_transcribe.py`.
 
 Then open `brave://extensions` (or `chrome://extensions`), enable
 *Developer mode*, choose *Load unpacked*, select the `extension` folder and
@@ -54,15 +57,16 @@ Transcripts are stored in the extension's local storage, keyed by message id.
 
 ## Troubleshooting
 
-- *Specified native messaging host not found*: run `./install.sh` again and
-  restart the browser.
+- *Specified native messaging host not found* or *Native host has exited*:
+  run `./install.sh` again and restart the browser.
 - *messaggio non trovato*: WhatsApp Web changed its internals. Replace
   `extension/wppconnect-wa.js` with the latest `dist/wppconnect-wa.js` from
   [@wppconnect/wa-js](https://www.npmjs.com/package/@wppconnect/wa-js).
 
 ## Uninstall
 
-Remove the extension, then delete `wa_transcribe.json` from
+Remove the extension and `~/Library/Application Support/wa-transcribe`, then
+delete `wa_transcribe.json` from
 `~/Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts/`
 and `~/Library/Application Support/Google/Chrome/NativeMessagingHosts/`.
 
