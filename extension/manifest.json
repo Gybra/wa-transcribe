@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "wa-transcribe",
+  "version": "0.1.0",
+  "description": "Transcribes WhatsApp Web voice messages locally with MLX Whisper.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzZFu+IwcyM3yryrfs4xg0tJNfAs4iDZrhh5e+fRyKzxEUl0fNGgK31IUearbeRFL7uf1u2q9NtgqAjGRB+p11bQ5fSckMa92UsL8VrTtXA+JTuyvIwhXpUXLR+M9cibt7QIHr5wwH+yiUKVNPzBJLtLxyocUzcmaY9+iosWRnJfq2/kS55n/7b9y+7m0T88arD06LKofLW7yCbQ9fwjA+k92YLwxXYGUqpvl65VNUw9W0m38MgMWu3ne+xnBCFHHuTCrh5oTEkCgOg5RDRNkoJh0OiEgUPxCustUfTWLpWcc29lHypSj1OyxD0qKYipS/c5b19ammMCbW/YN69j1ZQIDAQAB",
+  "permissions": ["nativeMessaging", "storage"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": ["wppconnect-wa.js", "page.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ]
+}
