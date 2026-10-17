@@ -24,9 +24,15 @@ async function attach(id, bubble) {
   const box = document.createElement('div');
   box.className = BOX_CLASS;
   bubble.append(box);
-  const cached = (await chrome.storage.local.get(id))[id];
-  if (cached !== undefined) showText(box, cached);
-  else showButton(id, box, 'Trascrivi');
+  try {
+    const cached = (await chrome.storage.local.get(id))[id];
+    if (cached !== undefined) showText(box, cached);
+    else showButton(id, box, 'Trascrivi');
+  } catch {
+    // After the extension is reloaded or updated, scripts already in the page
+    // lose access to it until the page itself is reloaded.
+    box.textContent = 'wa-transcribe è stato aggiornato: ricarica la pagina';
+  }
 }
 
 function showButton(id, box, label, error) {
