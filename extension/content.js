@@ -13,7 +13,8 @@ scan();
 function scan() {
   for (const icon of document.querySelectorAll(VOICE_ICON)) {
     const row = icon.closest('[data-id]');
-    const bubble = row?.querySelector('[data-testid="msg-container"]');
+    // The first child of the container is the bubble that carries the background.
+    const bubble = row?.querySelector('[data-testid="msg-container"]')?.firstElementChild;
     if (bubble && !bubble.querySelector('.' + BOX_CLASS)) attach(row.dataset.id, bubble);
   }
 }
@@ -29,23 +30,29 @@ async function attach(id, bubble) {
 }
 
 function showButton(id, box, label, error) {
-  const button = document.createElement('button');
+  const button = element('button', 'button', label);
   button.type = 'button';
-  button.textContent = label;
   button.addEventListener('click', (event) => {
     event.stopPropagation(); // keep WhatsApp from treating it as a click on the bubble
     transcribe(id, box);
   });
   box.replaceChildren(button);
-  if (error) box.append(' ' + error);
+  if (error) box.append(element('div', 'error', error));
 }
 
 function showText(box, text) {
-  box.textContent = text || '(nessun parlato riconosciuto)';
+  box.replaceChildren(element('div', 'text', text || '(nessun parlato riconosciuto)'));
+}
+
+function element(tag, name, text) {
+  const node = document.createElement(tag);
+  node.className = `${BOX_CLASS}__${name}`;
+  node.textContent = text;
+  return node;
 }
 
 async function transcribe(id, box) {
-  box.textContent = 'Trascrizione…';
+  box.replaceChildren(element('div', 'status', 'Trascrizione in corso…'));
   try {
     const audio = await requestAudio(id);
     const reply = await chrome.runtime.sendMessage({ audio });
@@ -53,7 +60,7 @@ async function transcribe(id, box) {
     await chrome.storage.local.set({ [id]: reply.text });
     showText(box, reply.text);
   } catch (err) {
-    showButton(id, box, 'Riprova', 'Errore: ' + err.message);
+    showButton(id, box, 'Riprova', err.message);
   }
 }
 
