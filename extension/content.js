@@ -13,8 +13,9 @@ scan();
 function scan() {
   for (const icon of document.querySelectorAll(VOICE_ICON)) {
     const row = icon.closest('[data-id]');
-    // The first child of the container is the bubble that carries the background.
-    const bubble = row?.querySelector('[data-testid="msg-container"]')?.firstElementChild;
+    // The bubble with the background is the container's first div: the first
+    // message of a group puts its tail (a span) before it.
+    const bubble = row?.querySelector('[data-testid="msg-container"] > div');
     if (bubble && !bubble.querySelector('.' + BOX_CLASS)) attach(row.dataset.id, bubble);
   }
 }
