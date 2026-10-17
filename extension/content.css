@@ -5,8 +5,9 @@
   /* Fill the bubble without widening it: the player sets its width. */
   width: 0;
   min-width: calc(100% - 18px);
-  margin: 0 9px 8px;
-  padding-top: 7px;
+  margin: 0 9px;
+  /* Padding, not margin: a bottom margin collapses out of the bubble. */
+  padding: 10px 0;
   border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent);
   font-size: 14px;
   line-height: 19px;
@@ -17,11 +18,17 @@
   overflow-wrap: anywhere;
 }
 
-/* The time is absolutely positioned at the bubble bottom, aligned to the
-   player rather than the bubble edge: give it its own line under text. */
+/* WhatsApp keeps the time 85px from the edge to clear the sender avatar in
+   the player row; below our box the bottom-right corner is free. */
+div:has(> .wa-transcribe) div:has(> [data-testid="msg-meta"]) {
+  right: 9px;
+}
+
+/* The time is absolutely positioned at the bubble bottom: give it its own
+   line under text. */
 .wa-transcribe__text,
 .wa-transcribe__error {
-  padding-bottom: 14px;
+  padding-bottom: 16px;
 }
 
 .wa-transcribe__status {
