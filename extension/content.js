@@ -2,7 +2,9 @@
 // the transcript in its place. Audio comes from page.js (page world), text from
 // the native host through background.js; transcripts are cached by message id.
 
-const VOICE_ICON = '[data-icon="ptt-status"]';
+// A voice note draws its waveform on a canvas; quoted voice previews show an
+// icon, so the canvas alone means the row is a voice message.
+const WAVEFORM = '[data-testid="msg-container"] canvas';
 const BOX_CLASS = 'wa-transcribe';
 
 // WhatsApp re-renders rows on scroll and chat switch, dropping our box:
@@ -11,8 +13,8 @@ new MutationObserver(scan).observe(document.body, { childList: true, subtree: tr
 scan();
 
 function scan() {
-  for (const icon of document.querySelectorAll(VOICE_ICON)) {
-    const row = icon.closest('[data-id]');
+  for (const waveform of document.querySelectorAll(WAVEFORM)) {
+    const row = waveform.closest('[data-id]');
     // The bubble with the background is the container's first div: the first
     // message of a group puts its tail (a span) before it.
     const bubble = row?.querySelector('[data-testid="msg-container"] > div');
