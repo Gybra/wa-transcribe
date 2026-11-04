@@ -1,5 +1,5 @@
 // Forwards audio from content.js to the native host. The browser starts the
-// host for each message and it exits after replying, so the Whisper model only
+// host for each message and it exits after replying, so the speech model only
 // occupies memory while a transcription runs.
 
 const HOST = 'wa_transcribe';
