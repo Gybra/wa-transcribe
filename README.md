@@ -1,14 +1,15 @@
 # wa-transcribe
 
 Transcribe WhatsApp Web voice messages on your own Mac. A button under each
-voice message sends its audio to [MLX Whisper](https://github.com/ml-explore/mlx-examples/tree/main/whisper)
-running locally and shows the text in its place.
+voice message sends its audio to [Qwen3-ASR](https://huggingface.co/Qwen/Qwen3-ASR-1.7B),
+running locally through [mlx-audio](https://github.com/Blaizzy/mlx-audio), and
+shows the text in its place.
 
 Unofficial project, not affiliated with WhatsApp or Meta.
 
 - **Local only.** Audio and transcripts never leave your machine.
 - **On demand.** Nothing runs until you click. The browser starts the
-  transcriber for that message and it exits right after, so the ~3 GB model
+  transcriber for that message and it exits right after, so the ~2.5 GB model
   is not kept in memory.
 - **Silent.** Audio is read through [wa-js](https://github.com/wppconnect-team/wa-js)
   without playing it, so the sender does not see the message as played.
@@ -18,7 +19,7 @@ Unofficial project, not affiliated with WhatsApp or Meta.
 
 - macOS on Apple Silicon
 - Brave or Google Chrome
-- `ffmpeg` (`brew install ffmpeg`) and `python3`
+- `ffmpeg` (`brew install ffmpeg`) and Python 3.10+ (`brew install python`)
 
 ## Install
 
@@ -26,8 +27,8 @@ Unofficial project, not affiliated with WhatsApp or Meta.
 ./install.sh
 ```
 
-The script installs `mlx-whisper` in `~/.venvs/whisper` (override with
-`WHISPER_VENV`) if it is missing, downloads the model, copies the native
+The script installs `mlx-audio` in `~/.venvs/wa-transcribe` (override with
+`WA_TRANSCRIBE_VENV`) if it is missing, downloads the model, copies the native
 messaging host to `~/Library/Application Support/wa-transcribe` and registers
 it for Brave and Chrome. The copy is needed because the host inherits the
 browser's macOS privacy permissions, which usually exclude Documents, Desktop
