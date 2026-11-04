@@ -27,8 +27,9 @@ Unofficial project, not affiliated with WhatsApp or Meta.
 ./install.sh
 ```
 
-The script installs `mlx-audio` in `~/.venvs/wa-transcribe` (override with
-`WA_TRANSCRIBE_VENV`) if it is missing, downloads the model, copies the native
+The script creates the venv `~/.venvs/wa-transcribe` (override with
+`WA_TRANSCRIBE_VENV`) if it is missing, installs the pinned `mlx-audio` version
+in it, downloads the model, copies the native
 messaging host to `~/Library/Application Support/wa-transcribe` and registers
 it for Brave and Chrome. The copy is needed because the host inherits the
 browser's macOS privacy permissions, which usually exclude Documents, Desktop

@@ -22,7 +22,7 @@ die() { echo "❌ $*" >&2; exit 1; }
 [[ "$(uname -sm)" == "Darwin arm64" ]] || die "MLX needs macOS on Apple Silicon"
 FFMPEG="$(command -v ffmpeg)" || die "ffmpeg not installed (brew install ffmpeg)"
 
-if ! "$VENV/bin/python" -c "import mlx_audio" 2>/dev/null; then
+if [[ ! -x "$VENV/bin/python" ]]; then
     # mlx-audio needs Python 3.10+, while macOS's own python3 is 3.9.
     PYTHON=""
     for CANDIDATE in python3 python3.14 python3.13 python3.12 python3.11 python3.10; do
@@ -32,12 +32,14 @@ if ! "$VENV/bin/python" -c "import mlx_audio" 2>/dev/null; then
         fi
     done
     [[ -n "$PYTHON" ]] || die "Python 3.10+ not installed (brew install python)"
-    echo "⚙️  Installing mlx-audio in $VENV ..."
     "$PYTHON" -m venv "$VENV"
     "$VENV/bin/pip" install -q --upgrade pip
-    # mlx-audio changes its API often: pin the version this host was tested with.
-    "$VENV/bin/pip" install -q mlx-audio==0.6.4
 fi
+
+# mlx-audio changes its API often: enforce the version this host was tested
+# with on every run, also in an existing venv.
+echo "⚙️  Installing mlx-audio 0.6.4 in $VENV ..."
+"$VENV/bin/pip" install -q mlx-audio==0.6.4
 
 # The host runs offline, so the model must already be in the Hugging Face cache.
 echo "⬇️  Checking the Qwen3-ASR model (first run downloads ~2.5 GB) ..."
