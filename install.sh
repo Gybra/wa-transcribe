@@ -4,12 +4,12 @@
 # Requires macOS on Apple Silicon (MLX) and ffmpeg (brew install ffmpeg).
 #
 # Optional env:
-#   WHISPER_VENV  venv with mlx-whisper (default ~/.venvs/whisper, created if missing)
+#   WA_TRANSCRIBE_VENV  venv with mlx-audio (default ~/.venvs/wa-transcribe, created if missing)
 
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
-VENV="${WHISPER_VENV:-$HOME/.venvs/whisper}"
+VENV="${WA_TRANSCRIBE_VENV:-$HOME/.venvs/wa-transcribe}"
 # Derived from the "key" in extension/manifest.json: fixed wherever the folder lives.
 EXTENSION_ID="mnebcjapfkcbmhgnhoehoalfboicdihh"
 # Hosts inherit the browser's privacy permissions, which usually exclude
@@ -19,18 +19,28 @@ LAUNCHER="$HOST_DIR/wa-transcribe-host"
 
 die() { echo "❌ $*" >&2; exit 1; }
 
-[[ "$(uname -sm)" == "Darwin arm64" ]] || die "MLX Whisper needs macOS on Apple Silicon"
+[[ "$(uname -sm)" == "Darwin arm64" ]] || die "MLX needs macOS on Apple Silicon"
 FFMPEG="$(command -v ffmpeg)" || die "ffmpeg not installed (brew install ffmpeg)"
 
-if ! "$VENV/bin/python" -c "import mlx_whisper" 2>/dev/null; then
-    echo "⚙️  Installing mlx-whisper in $VENV ..."
-    python3 -m venv "$VENV"
+if ! "$VENV/bin/python" -c "import mlx_audio" 2>/dev/null; then
+    # mlx-audio needs Python 3.10+, while macOS's own python3 is 3.9.
+    PYTHON=""
+    for CANDIDATE in python3 python3.14 python3.13 python3.12 python3.11 python3.10; do
+        if "$CANDIDATE" -c "import sys; sys.exit(sys.version_info < (3, 10))" 2>/dev/null; then
+            PYTHON="$CANDIDATE"
+            break
+        fi
+    done
+    [[ -n "$PYTHON" ]] || die "Python 3.10+ not installed (brew install python)"
+    echo "⚙️  Installing mlx-audio in $VENV ..."
+    "$PYTHON" -m venv "$VENV"
     "$VENV/bin/pip" install -q --upgrade pip
-    "$VENV/bin/pip" install -q mlx-whisper
+    # mlx-audio changes its API often: pin the version this host was tested with.
+    "$VENV/bin/pip" install -q mlx-audio==0.6.4
 fi
 
 # The host runs offline, so the model must already be in the Hugging Face cache.
-echo "⬇️  Checking the Whisper model (first run downloads ~3 GB) ..."
+echo "⬇️  Checking the Qwen3-ASR model (first run downloads ~2.5 GB) ..."
 "$VENV/bin/python" -c "
 import sys; sys.path.insert(0, '$ROOT/host')
 import huggingface_hub, wa_transcribe
@@ -55,7 +65,7 @@ for BROWSER in "Google/Chrome" "BraveSoftware/Brave-Browser"; do
     cat > "$DIR/NativeMessagingHosts/wa_transcribe.json" <<EOF
 {
   "name": "wa_transcribe",
-  "description": "wa-transcribe: local Whisper transcription of WhatsApp Web voice messages",
+  "description": "wa-transcribe: local Qwen3-ASR transcription of WhatsApp Web voice messages",
   "path": "$LAUNCHER",
   "type": "stdio",
   "allowed_origins": ["chrome-extension://$EXTENSION_ID/"]

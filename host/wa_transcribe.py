@@ -1,7 +1,7 @@
 """Native Messaging host: transcribes one WhatsApp voice message and exits.
 
 The browser starts this process for every chrome.runtime.sendNativeMessage
-call, so the Whisper model is in memory only while a transcription runs.
+call, so the speech model is in memory only while a transcription runs.
 Each message is a 4-byte native-endian length followed by UTF-8 JSON:
 request {"audio": "<base64 ogg/opus>"}, reply {"text": ...} or {"error": ...}.
 """
@@ -14,8 +14,8 @@ import struct
 import sys
 import tempfile
 
-MODEL = "mlx-community/whisper-large-v3-mlx"
-LANGUAGE = "it"
+MODEL = "mlx-community/Qwen3-ASR-1.7B-8bit"
+LANGUAGE = "Italian"
 
 
 def read_message(stream):
@@ -33,14 +33,14 @@ def write_message(stream, message):
 
 
 def transcribe(audio):
-    import mlx_whisper  # slow import (MLX): only pay for it when there is audio
+    from mlx_audio.stt import load  # slow import (MLX): only pay for it when there is audio
 
-    # mlx_whisper decodes through ffmpeg, which wants a file path.
+    # mlx_audio decodes ogg/opus through ffmpeg, which wants a file path.
     with tempfile.NamedTemporaryFile(suffix=".ogg") as file:
         file.write(audio)
         file.flush()
-        result = mlx_whisper.transcribe(file.name, path_or_hf_repo=MODEL, language=LANGUAGE)
-    return result["text"].strip()
+        result = load(MODEL).generate(file.name, language=LANGUAGE)
+    return result.text.strip()
 
 
 def handle(request):
